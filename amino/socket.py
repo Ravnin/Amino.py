@@ -3,19 +3,21 @@ import json
 import websocket
 import threading
 import contextlib
+import ssl
 
 from sys import _getframe as getframe
 
 from .lib.util import objects
 
 class SocketHandler:
-    def __init__(self, client, socket_trace = False, debug = False):
+    def __init__(self, client, socket_trace = False, debug = False, security = True):
         websocket.enableTrace(True)
         self.socket_url = "wss://ws1.narvii.com"
         self.client = client
         self.debug = debug
         self.active = False
         self.headers = None
+        self.security = security
         self.socket = None
         self.socket_thread = None
         self.reconnect = True
@@ -32,33 +34,19 @@ class SocketHandler:
         # Made by enchart#3410 thx
         # Fixed by The_Phoenix#3967
         while True:
-            if self.debug is True:
-                print(f"[socket][reconnect_handler] socketDelay : {self.socketDelay}")
+            time.sleep(self.socketDelayFetch)
 
-            if self.socketDelay >= self.socketDelayFetch and self.active:
+            if self.active:
                 if self.debug is True:
-                    print(f"[socket][reconnect_handler] socketDelay >= {self.socketDelayFetch}, Reconnecting Socket")
-
+                    print(f"[socket][reconnect_handler] socketDelayFetch = {self.socketDelayFetch} seconds, Reconnecting Socket")
                 self.close()
                 self.start()
-                self.socketDelay = 0
-                self.reconnect = True
 
-            self.socketDelay += 1
-
-            if self.reconnect is False:
-                if self.debug is True:
-                    print(f"[socket][reconnect_handler] reconnect is False, breaking")
-
-                break
-
-            time.sleep(1)
 
     def on_open(self):
         if self.debug is True:
             print("[socket][on_open] Socket Opened")
 
-        pass
 
     def on_close(self):
         if self.debug is True:
@@ -106,7 +94,19 @@ class SocketHandler:
             header = self.headers
         )
 
-        self.socket_thread = threading.Thread(target = self.socket.run_forever, kwargs = {"ping_interval": 60})
+        socket_settings = {
+            "ping_interval": 60
+        }
+
+        if not self.security:
+            socket_settings.update({
+                'sslopt': {
+                    "cert_reqs": ssl.CERT_NONE,
+                    "check_hostname": False
+                }
+            })
+
+        self.socket_thread = threading.Thread(target = self.socket.run_forever, kwargs = socket_settings)
         self.socket_thread.start()
         self.active = True
 
