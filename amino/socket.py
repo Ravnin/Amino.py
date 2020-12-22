@@ -4,6 +4,7 @@ import websocket
 import threading
 import contextlib
 import ssl
+from random import randint
 
 from sys import _getframe as getframe
 
@@ -34,11 +35,12 @@ class SocketHandler:
         # Made by enchart#3410 thx
         # Fixed by The_Phoenix#3967
         while True:
-            time.sleep(self.socketDelayFetch)
+            temp = randint(120, 250)
+            time.sleep(temp)
 
             if self.active:
                 if self.debug is True:
-                    print(f"[socket][reconnect_handler] socketDelayFetch = {self.socketDelayFetch} seconds, Reconnecting Socket")
+                    print(f"[socket][reconnect_handler] Random refresh time = {temp} seconds, Reconnecting Socket")
                 self.close()
                 self.start()
 
