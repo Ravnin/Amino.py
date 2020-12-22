@@ -24,7 +24,8 @@ class SocketHandler:
         self.reconnect = True
         self.socket_stop = False
         self.socketDelay = 0
-        self.socketDelayFetch = 120  # Reconnects every 120 seconds.
+        self.minReconnect = 120
+        self.maxReconnect = 250
 
         self.socket_handler = threading.Thread(target = self.reconnect_handler)
         self.socket_handler.start()
@@ -35,7 +36,7 @@ class SocketHandler:
         # Made by enchart#3410 thx
         # Fixed by The_Phoenix#3967
         while True:
-            temp = randint(120, 250)
+            temp = randint(self.minReconnect, self.maxReconnect)
             time.sleep(temp)
 
             if self.active:
