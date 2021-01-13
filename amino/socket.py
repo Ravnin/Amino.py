@@ -55,13 +55,13 @@ class SocketHandler:
         if self.debug is True:
             print("[socket][on_close] Socket Closed")
 
-        self.active = False
+        #self.active = False
 
         if self.reconnect:
             if self.debug is True:
                 print("[socket][on_close] reconnect is True, Opening Socket")
 
-            self.start()
+            #self.start()
 
     def on_ping(self, data):
         if self.debug is True:
